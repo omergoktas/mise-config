@@ -1,0 +1,121 @@
+# Copyright © 2026 Ömer Göktaş. All Rights Reserved.
+
+# Ömer's own mise file, loaded in every folder: every development tool and
+# task he uses in any project, with their secrets. A project's own mise files
+# hold only what its build needs. The og-mise skill of the Yastik project
+# explains every line.
+#
+# The public age keys that `mise run secret --global` encrypts to:
+# Ömer's Mac: age1w0x458cc8t9a78klgn4ht5dut8g5mhz7g464qx4gplr5n6zz94fs6c9c0k
+
+[settings]
+experimental = true
+age.strict = false
+lockfile_platforms = ["linux-x64", "linux-arm64", "macos-x64", "macos-arm64", "windows-x64", "windows-arm64"]
+
+[tools]
+python = "3.12.16"
+uv = "0.13.7"
+"pipx:clang-format" = "23.1.5"
+"pipx:gersemi" = "0.29.2"
+ruff = "0.17.4"
+jactionlint = "2.6.0"
+pinact = "5.0.2"
+gh = "2.103.3"
+tombi = "1.11.2"
+
+[tools."http:git"]
+version = "2.56.1"
+
+[tools."http:git".platforms]
+macos-arm64 = { url = "https://github.com/desktop/dugite-native/releases/download/v{{ version }}/dugite-native-v{{ version }}-238326e-macOS-arm64.tar.gz", bin_path = "bin" }
+macos-x64 = { url = "https://github.com/desktop/dugite-native/releases/download/v{{ version }}/dugite-native-v{{ version }}-238326e-macOS-x64.tar.gz", bin_path = "bin" }
+linux-arm64 = { url = "https://github.com/desktop/dugite-native/releases/download/v{{ version }}/dugite-native-v{{ version }}-238326e-ubuntu-arm64.tar.gz", bin_path = "bin" }
+linux-x64 = { url = "https://github.com/desktop/dugite-native/releases/download/v{{ version }}/dugite-native-v{{ version }}-238326e-ubuntu-x64.tar.gz", bin_path = "bin" }
+windows-arm64 = { url = "https://github.com/desktop/dugite-native/releases/download/v{{ version }}/dugite-native-v{{ version }}-238326e-windows-arm64.tar.gz", bin_path = "cmd" }
+windows-x64 = { url = "https://github.com/desktop/dugite-native/releases/download/v{{ version }}/dugite-native-v{{ version }}-238326e-windows-x64.tar.gz", bin_path = "cmd" }
+
+[env]
+RUFF_CACHE_DIR = "{{ xdg_cache_home }}/ruff"
+GIT_EXEC_PATH = { value = "{% if tools['http:git'] is defined %}{{ tools['http:git'].path }}/{% if os() == 'windows' %}{% if arch() == 'arm64' %}clangarm64{% else %}mingw64{% endif %}/{% endif %}libexec/git-core{% endif %}", tools = true }
+GIT_TEMPLATE_DIR = { value = "{% if tools['http:git'] is defined %}{{ tools['http:git'].path }}/{% if os() == 'windows' %}{% if arch() == 'arm64' %}clangarm64{% else %}mingw64{% endif %}/{% endif %}share/git-core/templates{% endif %}", tools = true }
+GIT_CONFIG_SYSTEM = { value = "{% if tools['http:git'] is defined %}{{ tools['http:git'].path }}/etc/gitconfig{% endif %}", tools = true }
+
+[task_templates.github]
+dir = "{{cwd}}"
+
+[task_templates.github.env]
+# A GitHub token for gh and git; made at github.com/settings/tokens.
+GH_TOKEN = { age = "YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAwOG1MKzJybHpEdzA2QmQ0cHIrZWdPZVN3UjMzSmYrNDNOK3RYRHpOZGo0CkZQZ2NXMWpLdzZnQTF6RlF2cTMvT2lGbC9VdFFBd0FEaCsxTFd0VjdmWmcKLT4gaU9EdUBwRz8tZ3JlYXNlIEUvW3MgRnJXayA7fQpmRUVxckozd1UyeFBubWNmTUF2bHlYNndjUDhmcjB6MlhDZ05QdFd3cWNQT2oxOGxZYlhnMTZMR0ZPdE5UM29WCnFLOU1Da3BpVTJENUJMTTZIcVowaE5QUm51aE5NT001V0tkd3FLLy8yNlVTaW1IU1F0b2IyWjJOU2IvMzdMQVkKCi0tLSArcnAzWDFQRkdhUUcrMm45Tk9GbC9xalE4KzdwUG0wNmI4SnFESjhxNk9jChMLM/RbQrZLOReBC183POv2KhM9niS7YG65UW/lgf9F5s0M79oB6U21JmAbLNAKTihBOx+ur3Iw7OSiQ9ekgrIvifJeCO+NXg" }
+GIT_CONFIG_COUNT = "2"
+GIT_CONFIG_KEY_0 = "credential.helper"
+GIT_CONFIG_VALUE_0 = ""
+GIT_CONFIG_KEY_1 = "credential.https://github.com.helper"
+GIT_CONFIG_VALUE_1 = '!f() { test "$1" = get && echo username=x-access-token && echo "password=$GH_TOKEN"; }; f'
+
+[task_templates.box]
+dir = "{{cwd}}"
+
+[task_templates.box.env]
+# The test boxes' SSH password; redact = false lets the box tasks read pipes.
+SSHPASS = { age = "YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBLWkkxZjlHaTlpeXJ1RDFuMTkzN2N0eUh5TFJORTloRTEwK1o1WlUyNEhRCkNHMnc3RkZ3RHk5eEtZd1RGdzgwQU9KekJlclNOZk5aSDZ1UWVIRkZyY0UKLT4gO3g9fXstZ3JlYXNlCkw3NVZFU0d5ZjArZy9KU0l4OTlxR3RvVVRmdwotLS0gdzZ0elRyMkxNbGUxb25hMVpUcllvNWxvWEgwbGxxaGFaZkZKNWh1TU1DTQqVO9AUR4HDBKdkyHeyvzPdSjosWFvjA5N0xFGo6wlFBT3sVjjFwN6tyx0", redact = false }
+
+[tasks.gh]
+description = "Run GitHub's gh with your token, such as `mise run gh run list`"
+extends = "github"
+raw_args = true
+run = "gh"
+
+[tasks.git]
+description = "Run git with your GitHub login, such as `mise run git push`"
+extends = "github"
+raw_args = true
+run = "git"
+
+[tasks."box:linux"]
+description = "Open a shell on the Linux test box, or run the command given, such as `mise run box:linux uname -a`"
+extends = "box"
+raw = true
+raw_args = true
+run = "sshpass -e ssh -o StrictHostKeyChecking=no -p 2222 aibox@omergoktas.com"
+
+[tasks."box:windows"]
+description = "Open a shell on the Windows test box, or run the command given, such as `mise run box:windows ver`"
+extends = "box"
+raw = true
+raw_args = true
+run = "sshpass -e ssh -o StrictHostKeyChecking=no -p 5555 omergoktas@omergoktas.com"
+
+[tasks.remote]
+description = "Run scp, rsync or another ssh command with the test boxes' password, such as `mise run remote scp -P 5555 file omergoktas@omergoktas.com:audit/`"
+extends = "box"
+raw = true
+raw_args = true
+run = "sshpass -e"
+
+[tasks.sound]
+description = "Run a Python script with the sound services' keys, such as `mise run sound tools/sounds/takes.py`"
+dir = "{{cwd}}"
+run = "python3"
+
+[tasks.sound.env]
+# ElevenLabs' API key, for sound effects; made at elevenlabs.io under
+# Developers > API Keys.
+ELEVENLABS_API_KEY = { age = "YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB3OStGcm1DRHJRajh5VXRVSFh6NWF5aHFIaDBjTmFGbkt2ZjVLYm5pVFFJCnZpd2liREVlNlpjaUtxN1RtWTMrMnBSMXJieG4rUVdLU0ZDNnd2OG1oM1kKLT4gMzV8YS1ncmVhc2UgWihbIkpCeXwgNz8nIGkmVk0KVGM2bk54UzB1VE1QK1k1bDBCcDVmb0NhQ2FWY2VBeDNGU3VFTWZLd1RuUGdLalR5S3JKenIvLy90akQ4bUhVcQpIcVZvWHBqV1lJdGlnejI5SVNvbHNKUDdmaVNXMXVjZ2lOSjY1VU5XCi0tLSB5b1JmTDdnS0M4UDdCYVY3TkFGTmRnWEx0Q0VVSWpWU21BQ3JoOTBuZUJrClC+POb70sK/XY0R+93mZmcNpKyDOzF2wyJ30s0mCOCaEWBmTQXkb6Mny2tbJDg6Yjya1g6+V7Ylhym6UHt20aq2nG9fAJealx/EWsl4OVYFfpuZ" }
+# Google's Gemini API keys, for speech, separated by commas, the free ones
+# first; made at aistudio.google.com/apikey.
+GEMINI_API_KEY = { age = "YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSArVUo2eWR5ZEZYdm5KSUROVEhId080b3orTVB0V21JcHpkNlJvZDJnWnhVCnRnZ2F6a3Fjc012R3RKaExncHBwLytlTGV4dUIwNE5VeEdkbnZoNUdvRUEKLT4gRS1ncmVhc2UgR0AgZy4hMUh6bE4KUDh4Yk4veCtiTmtXdzhnY1I2VmxUQzlTc2g3a1RMakVSTEI3cGpNeCs4b0oxU0tWdWpkc1FOQ016cFdsMThRVwoyanptS3NkOXh6OFZTMkhZWkh6NUNqZ0hBOHdPNVVPSGNqRlYyQWNUYmFMeVlhY2taeW8KLS0tIFZ1Z0tPN2M1SytxdmpPZ3E5YUplNjgrY1YzNXc0NmVnTGQvSjllUjV6WUEKfz5aZvBAFLXrABL2kJ98sz/6CMpMBmxm5FbIKorqFZWuT3bkUKHRtGOihxb/wQFMl6SttJSROsdYAUoMYTC6MSjmb76Nz7Vy2tbPdlcruD78FtIaC9QHf78C9pmGZ7Z6gTM8wTv5Z9IU1VlFtmjpMIZZ/ea36xhFnTRCsMakHhiBoKxbQSEqp5a5rIQ/tcFNfgzalXAH/NJd65BOG98eG/dSUD9HAeY8/ufIsJpkkFydjJKiOQ0VJFXa/r3s0S22L9WNrC21rsiU1RArGJNnUGfsVpAYPpFDJIXUFeBoOb4VUfIP66xnq1MWQbXyHye5/YNMP7EmtpjQ10MQJeEb2Nen4il0fWk7fEDrio2gaN5qx45GhcGN3f+eBKS6+8We/3nthCf+lXe0qTm/Pw" }
+
+[tasks.translate]
+description = "Translate an AtQt project's new and changed texts into every language, such as `mise run translate macos-arm64-debug`"
+usage = 'arg "<preset>" help="A configure preset of the project"'
+dir = "{{cwd}}"
+run = 'cmake --preset "{{usage.preset}}" -DATQT_TRANSLATION_ENABLED=TRUE && cmake --build "build/{{usage.preset}}" --target atqt_translate'
+
+[tasks.translate.env]
+ATQT_TRANSLATION_API_URL = "https://api.anthropic.com/v1/messages"
+ATQT_TRANSLATION_MODEL = "claude-opus-5-5"
+# The Claude API key; made at platform.claude.com under API keys.
+CLAUDE_API_KEY = { age = "YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAzRnljN1VTeE5WTmtJWjRsbmpYZkpiOWRHSEVTZ1c2aGZ6V2tyM1lkbUZFCkEyb2U0b3NacmhMTEtnMmdDMytRY2cwSTFMcktleDZNTU1KME1XbHl5RjQKLT4gTVdOVWlULWdyZWFzZSBZSX1zXiUlIHN2b1c5TAo4L1Z5S3l2aUpha1JtVFZyai9Tbk1TRkVKQW1GN2Jzb2lEUk02NEc3UGcKLS0tIFZtVlNVZ0owM1U0U0ZPZmw4S2N2MGNYNlF3YWZuYkVjTlBKVGtSbExzMTAKW8x/exWy6RRb3n4t5+V7Aw2PE8cxZC2SbjwroiYRjAph6da9cPzPJB6iYY1kDUXk+Hl1+Mc5awvn0mSaoZYsnaJW7PtZLEMkHYoNtSQ61iNZIMfiCXz1/MPcmgWQWv0ruv2aiVjfU2/SjP72YgB68ElrRKRhB3CpNjGazFxVAR2qGiYWxpb0Lji2" }
+# The name under which AtQt's translator reads that key.
+ATQT_TRANSLATION_API_KEY = "{{ env.CLAUDE_API_KEY | default(value='') }}"

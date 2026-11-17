@@ -1,0 +1,12 @@
+# Copyright © 2026 Ömer Göktaş. All Rights Reserved.
+
+# Only the files listed here are kept. Everything else stays on the machine,
+# above all the private age keys, age.txt and age-ci.txt, which open every
+# secret of this file and of the projects.
+/*
+!/.gitignore
+!/README.md
+!/config.toml
+!/mise.lock
+!/locks/
+!/tasks/
