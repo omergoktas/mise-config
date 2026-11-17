@@ -12,6 +12,8 @@
 experimental = true
 age.strict = false
 lockfile_platforms = ["linux-x64", "linux-arm64", "macos-x64", "macos-arm64", "windows-x64", "windows-arm64"]
+paranoid = ["config"]
+trusted_config_paths = ["~/Projeler/Yastik"]
 
 [tools]
 python = "3.12.16"
