@@ -11,6 +11,14 @@
 ## A New Machine
 
 1. Install mise, and make the shell load it with `mise activate`.
-2. Clone this repository as `~/.config/mise`.
-3. Copy the age key, `~/.config/mise/age.txt`, from another machine of yours by hand. It is never committed: `.gitignore` keeps only the files above.
-4. Run `mise install` in the home folder.
+2. Copy the whole `~/.config/mise` folder from another machine of yours. It holds this repository's checkout and the age key, `age.txt`, which is never committed: `.gitignore` keeps only the files above. Copying it by hand is also the only way in, since the token that logs git and gh in to this private repository is itself one of the encrypted secrets here.
+3. Run `mise install` in the home folder.
+
+## Keeping It Up to Date
+
+A change to the setup, such as a new tool, a secret stored with `mise run secret --global` or a new lock from `mise lock --global`, changes the files here. Commit and push it from this folder, and pull it on every other machine:
+
+```bash
+cd ~/.config/mise && mise run git add -A && mise run git commit -m "<what changed>" && mise run git push
+cd ~/.config/mise && mise run git pull
+```
