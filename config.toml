@@ -16,6 +16,11 @@ age.strict = false
 lockfile_platforms = ["linux-x64", "linux-arm64", "macos-x64", "macos-arm64", "windows-x64", "windows-arm64"]
 paranoid = ["config"]
 trusted_config_paths = ["~/Projeler/Yastik"]
+# The shims folder is named bin on every system for Windows' sake: Claude Code
+# looks for no bash on PATH there, but takes bin\bash.exe beside the folder of
+# the git it finds, as in Git for Windows. With the folder named bin, that is
+# the bash shim beside the git shim, and it runs niubash.
+shims_dir = "~/.local/share/mise/bin"
 
 [tools]
 python = "3.12.16"
@@ -39,8 +44,31 @@ linux-x64 = { url = "https://github.com/desktop/dugite-native/releases/download/
 windows-arm64 = { url = "https://github.com/desktop/dugite-native/releases/download/v{{ version }}/dugite-native-v{{ version }}-238326e-windows-arm64.tar.gz", bin_path = "cmd" }
 windows-x64 = { url = "https://github.com/desktop/dugite-native/releases/download/v{{ version }}/dugite-native-v{{ version }}-238326e-windows-x64.tar.gz", bin_path = "cmd" }
 
+# Windows' bash: niubash, a native shell, and BusyBox for the commands it
+# lacks, hard-linked by name into BusyBox's links folder, the one folder mise
+# puts on PATH. BusyBox's unzip is left out: it writes outside its target.
+# Claude Code finds niubash through its bash shim (shims_dir above).
+[tools."http:niubash"]
+version = "1.5.0"
+os = ["windows"]
+
+[tools."http:niubash".platforms]
+windows-arm64 = { url = "https://github.com/unixwin/niubash/releases/download/v{{ version }}/niubash-v{{ version }}-win-arm64.7z" }
+windows-x64 = { url = "https://github.com/unixwin/niubash/releases/download/v{{ version }}/niubash-v{{ version }}-win-x64.7z" }
+
+[tools."http:busybox-w32"]
+version = "FRP-6354-g5f09fb446"
+os = ["windows"]
+bin_path = "links"
+postinstall = 'for %f in ("%MISE_TOOL_INSTALL_PATH%\links\busybox-w64*.exe") do @(for %c in (awk bc bunzip2 bzcat bzip2 dc ed gunzip gzip hd iconv lzcat lzma uncompress unlzma unxz uudecode uuencode uuidgen wget xz xzcat zcat) do @"%~f" ln -f "%~f" "%MISE_TOOL_INSTALL_PATH%\links\%c.exe")'
+
+[tools."http:busybox-w32".platforms]
+windows-arm64 = { url = "https://frippery.org/files/busybox/busybox-w64a-{{ version }}.exe" }
+windows-x64 = { url = "https://frippery.org/files/busybox/busybox-w64-{{ version }}.exe" }
+
 [env]
 RUFF_CACHE_DIR = "{{ xdg_cache_home }}/ruff"
+NIU_UPDATE_CHECK = "0"
 GIT_EXEC_PATH = { value = "{% if tools['http:git'] is defined %}{{ tools['http:git'].path }}/{% if os() == 'windows' %}{% if arch() == 'arm64' %}clangarm64{% else %}mingw64{% endif %}/{% endif %}libexec/git-core{% endif %}", tools = true }
 GIT_TEMPLATE_DIR = { value = "{% if tools['http:git'] is defined %}{{ tools['http:git'].path }}/{% if os() == 'windows' %}{% if arch() == 'arm64' %}clangarm64{% else %}mingw64{% endif %}/{% endif %}share/git-core/templates{% endif %}", tools = true }
 GIT_CONFIG_SYSTEM = { value = "{% if tools['http:git'] is defined %}{{ tools['http:git'].path }}/etc/gitconfig{% endif %}", tools = true }

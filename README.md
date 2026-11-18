@@ -13,6 +13,7 @@
 1. Install mise, and make the shell load it with `mise activate`.
 2. Copy the whole `~/.config/mise` folder from another machine of yours. It holds this repository's checkout and the age key, `age.txt`, which is never committed: `.gitignore` keeps only the files above. Copying it by hand is also the only way in, since the token that logs git and gh in to this private repository is itself one of the encrypted secrets here.
 3. Run `mise install` in the home folder.
+4. On Windows, put mise's shims folder, `%USERPROFILE%\.local\share\mise\bin`, first on the user's `Path`, as the Yastik project's `USERTASKS.md` says.
 
 ## Keeping It Up to Date
 
