@@ -8,6 +8,8 @@
 # The public age keys that `mise run secret --global` encrypts to:
 # Ömer's Mac: age1w0x458cc8t9a78klgn4ht5dut8g5mhz7g464qx4gplr5n6zz94fs6c9c0k
 
+min_version = "2026.11.8"
+
 [settings]
 experimental = true
 age.strict = false
