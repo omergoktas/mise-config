@@ -227,6 +227,12 @@ backend = "pipx:clang-format"
 specifiers = ["23.1.5"]
 uv = { path = "locks/pipx-clang-format/23.1.5", digest = "sha256:eaf79dafbb2a6d6ce145e72013f8d4d7010d14268564edf7d0f77d4542ce5156" }
 
+[[tools."pipx:copier"]]
+version = "9.19.1"
+backend = "pipx:copier"
+specifiers = ["9.19.1"]
+uv = { path = "locks/pipx-copier/9.19.1", digest = "sha256:d1fd57139c712269456365669e47e693b0f1c858c013b769218fdac16055a6da" }
+
 [[tools."pipx:gersemi"]]
 version = "0.29.2"
 backend = "pipx:gersemi"
@@ -349,6 +355,88 @@ checksum = "sha256:fc059da801b0f6f6dd816eb4ede2a532d1562bc16c56cfe6557a9ecfa81a2
 url = "https://github.com/tombi-toml/tombi/releases/download/v1.11.2/tombi-cli-1.11.2-x86_64-pc-windows-msvc.zip"
 url_api = "https://api.github.com/repos/tombi-toml/tombi/releases/assets/731865844"
 provenance = "github-attestations"
+
+[[tools.trzsz-go]]
+version = "1.2.0"
+backend = "aqua:trzsz/trzsz-go"
+specifiers = ["1.2.0"]
+
+[tools.trzsz-go."platforms.linux-arm64"]
+checksum = "sha256:9a73c237b6b12af267e878591ff22a01c97ca9d1cd8125f9ff4ffd6df4fea97c"
+checksum_source = "mise-versions"
+url = "https://github.com/trzsz/trzsz-go/releases/download/v1.2.0/trzsz_1.2.0_linux_aarch64.tar.gz"
+url_api = "https://api.github.com/repos/trzsz/trzsz-go/releases/assets/341901924"
+
+[tools.trzsz-go."platforms.linux-x64"]
+checksum = "sha256:70e3e0847177d4c7b681a8ec19fa00092e422a6c628ef9d8a5db6dfbf4612add"
+checksum_source = "mise-versions"
+url = "https://github.com/trzsz/trzsz-go/releases/download/v1.2.0/trzsz_1.2.0_linux_x86_64.tar.gz"
+url_api = "https://api.github.com/repos/trzsz/trzsz-go/releases/assets/341901920"
+
+[tools.trzsz-go."platforms.macos-arm64"]
+checksum = "sha256:b6f290e2b6f4d70783797d2fd96eabef9ec789eee402f05e7aa20253cb09b592"
+checksum_source = "mise-versions"
+url = "https://github.com/trzsz/trzsz-go/releases/download/v1.2.0/trzsz_1.2.0_macos_aarch64.tar.gz"
+url_api = "https://api.github.com/repos/trzsz/trzsz-go/releases/assets/341901909"
+
+[tools.trzsz-go."platforms.macos-x64"]
+checksum = "sha256:070a377c28926fe1f540bccad96f368bd93aa5ba678df17d1328726e7c62661d"
+checksum_source = "mise-versions"
+url = "https://github.com/trzsz/trzsz-go/releases/download/v1.2.0/trzsz_1.2.0_macos_x86_64.tar.gz"
+url_api = "https://api.github.com/repos/trzsz/trzsz-go/releases/assets/341901912"
+
+[tools.trzsz-go."platforms.windows-arm64"]
+checksum = "sha256:ed2d96019f7c3eeca63203b1e1725808a0a894dbbd3a26f8d9abec1d0852b1ec"
+checksum_source = "mise-versions"
+url = "https://github.com/trzsz/trzsz-go/releases/download/v1.2.0/trzsz_1.2.0_windows_aarch64.zip"
+url_api = "https://api.github.com/repos/trzsz/trzsz-go/releases/assets/341901931"
+
+[tools.trzsz-go."platforms.windows-x64"]
+checksum = "sha256:0b46318a0fc7e39beaf97e6f07ab257f5b36fdffc3304118b6f72412dbbb52ca"
+checksum_source = "mise-versions"
+url = "https://github.com/trzsz/trzsz-go/releases/download/v1.2.0/trzsz_1.2.0_windows_x86_64.zip"
+url_api = "https://api.github.com/repos/trzsz/trzsz-go/releases/assets/341901913"
+
+[[tools.tssh]]
+version = "0.1.27"
+backend = "aqua:trzsz/trzsz-ssh"
+specifiers = ["0.1.27"]
+
+[tools.tssh."platforms.linux-arm64"]
+checksum = "sha256:9d05b80b92e4c91b9a490aac33bb8e18742f772a1151168df5feb78a849770c4"
+checksum_source = "mise-versions"
+url = "https://github.com/trzsz/trzsz-ssh/releases/download/v0.1.27/tssh_0.1.27_linux_aarch64.tar.gz"
+url_api = "https://api.github.com/repos/trzsz/trzsz-ssh/releases/assets/673717047"
+
+[tools.tssh."platforms.linux-x64"]
+checksum = "sha256:4367120c4d861e09a070d5a937817fbfd2910e6ed45fa277dbd36701886d1069"
+checksum_source = "mise-versions"
+url = "https://github.com/trzsz/trzsz-ssh/releases/download/v0.1.27/tssh_0.1.27_linux_x86_64.tar.gz"
+url_api = "https://api.github.com/repos/trzsz/trzsz-ssh/releases/assets/673717041"
+
+[tools.tssh."platforms.macos-arm64"]
+checksum = "sha256:9799060b222a5e9230a85a53d0367b0e0ae2c1f8fb00e6d5dc97616f994eae70"
+checksum_source = "mise-versions"
+url = "https://github.com/trzsz/trzsz-ssh/releases/download/v0.1.27/tssh_0.1.27_macos_aarch64.tar.gz"
+url_api = "https://api.github.com/repos/trzsz/trzsz-ssh/releases/assets/673717040"
+
+[tools.tssh."platforms.macos-x64"]
+checksum = "sha256:c8aaa6b6d7e1c3accc59281b5d765249b4b6ae9b0a7cdc670ffb3c26acdd7168"
+checksum_source = "mise-versions"
+url = "https://github.com/trzsz/trzsz-ssh/releases/download/v0.1.27/tssh_0.1.27_macos_x86_64.tar.gz"
+url_api = "https://api.github.com/repos/trzsz/trzsz-ssh/releases/assets/673717039"
+
+[tools.tssh."platforms.windows-arm64"]
+checksum = "sha256:826281f6a111ce290062bc3125c3d5c075916763536a30b6100460f372b6c8e3"
+checksum_source = "mise-versions"
+url = "https://github.com/trzsz/trzsz-ssh/releases/download/v0.1.27/tssh_0.1.27_windows_aarch64.zip"
+url_api = "https://api.github.com/repos/trzsz/trzsz-ssh/releases/assets/673717057"
+
+[tools.tssh."platforms.windows-x64"]
+checksum = "sha256:7d71f7103f0c9575ed4be259f6c22528dd0eaed20a72560173ccc4f4b8ba8a52"
+checksum_source = "mise-versions"
+url = "https://github.com/trzsz/trzsz-ssh/releases/download/v0.1.27/tssh_0.1.27_windows_x86_64.zip"
+url_api = "https://api.github.com/repos/trzsz/trzsz-ssh/releases/assets/673717043"
 
 [[tools.uv]]
 version = "0.13.7"

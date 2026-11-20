@@ -30,7 +30,7 @@ into the one project file that defines the task, in the env table of the task
 named, [tasks.<task>.env], or of the task template named,
 [task_templates.<name>.env], whose value every task that extends it gets. It
 replaces an earlier line of the same name, and creates the table when the task
-has none. A name with a colon, such as box:linux, is quoted in the table's
+has none. A name with a colon, such as remote:linux, is quoted in the table's
 header, as TOML requires. mise decrypts the value only while such a task runs.
 The value never reaches the screen, a log or a command line.
 

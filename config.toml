@@ -8,19 +8,24 @@
 # The public age keys that `mise run secret --global` encrypts to:
 # Ömer's Mac: age1w0x458cc8t9a78klgn4ht5dut8g5mhz7g464qx4gplr5n6zz94fs6c9c0k
 
-min_version = "2026.11.8"
+min_version = "2026.11.10"
 
 [settings]
 experimental = true
 age.strict = false
+age.key_file = "~/.config/mise/secrets/age.txt"
 lockfile_platforms = ["linux-x64", "linux-arm64", "macos-x64", "macos-arm64", "windows-x64", "windows-arm64"]
 paranoid = ["config"]
 trusted_config_paths = ["~/Projeler/Yastik"]
+enable_backends = ["core", "aqua", "http", "packslip", "pipx"]
 # The shims folder is named bin on every system for Windows' sake: Claude Code
 # looks for no bash on PATH there, but takes bin\bash.exe beside the folder of
 # the git it finds, as in Git for Windows. With the folder named bin, that is
 # the bash shim beside the git shim, and it runs niubash.
 shims_dir = "~/.local/share/mise/bin"
+
+[tool_config]
+locked = true
 
 [tools]
 python = "3.12.16"
@@ -32,6 +37,9 @@ jactionlint = "2.6.0"
 pinact = "5.0.2"
 gh = "2.103.3"
 tombi = "1.11.2"
+"pipx:copier" = "9.19.1"
+tssh = "0.1.27"
+trzsz-go = "1.2.0"
 
 [tools."http:git"]
 version = "2.56.1"
@@ -85,11 +93,12 @@ GIT_CONFIG_VALUE_0 = ""
 GIT_CONFIG_KEY_1 = "credential.https://github.com.helper"
 GIT_CONFIG_VALUE_1 = '!f() { test "$1" = get && echo username=x-access-token && echo "password=$GH_TOKEN"; }; f'
 
-[task_templates.box]
+[task_templates.remote]
 dir = "{{cwd}}"
 
-[task_templates.box.env]
-# The test boxes' SSH password; redact = false lets the box tasks read pipes.
+[task_templates.remote.env]
+# The test boxes' SSH password, which remotes.conf hands to tssh; redact = false
+# lets the remote tasks read pipes.
 SSHPASS = { age = "YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBLWkkxZjlHaTlpeXJ1RDFuMTkzN2N0eUh5TFJORTloRTEwK1o1WlUyNEhRCkNHMnc3RkZ3RHk5eEtZd1RGdzgwQU9KekJlclNOZk5aSDZ1UWVIRkZyY0UKLT4gO3g9fXstZ3JlYXNlCkw3NVZFU0d5ZjArZy9KU0l4OTlxR3RvVVRmdwotLS0gdzZ0elRyMkxNbGUxb25hMVpUcllvNWxvWEgwbGxxaGFaZkZKNWh1TU1DTQqVO9AUR4HDBKdkyHeyvzPdSjosWFvjA5N0xFGo6wlFBT3sVjjFwN6tyx0", redact = false }
 
 [tasks.gh]
@@ -104,26 +113,45 @@ extends = "github"
 raw_args = true
 run = "git"
 
-[tasks."box:linux"]
-description = "Open a shell on the Linux test box, or run the command given, such as `mise run box:linux uname -a`"
-extends = "box"
+[tasks."remote:linux"]
+description = "Open a shell on the Linux test box, or run the command given, such as `mise run remote:linux uname -a`"
+extends = "remote"
 raw = true
 raw_args = true
-run = "sshpass -e ssh -o StrictHostKeyChecking=no -p 2222 aibox@omergoktas.com"
+run = 'tssh -F "{{xdg_config_home}}/mise/remotes.conf" linux-box'
 
-[tasks."box:windows"]
-description = "Open a shell on the Windows test box, or run the command given, such as `mise run box:windows ver`"
-extends = "box"
+[tasks."remote:windows"]
+description = "Open a shell on the Windows test box, or run the command given, such as `mise run remote:windows ver`"
+extends = "remote"
 raw = true
 raw_args = true
-run = "sshpass -e ssh -o StrictHostKeyChecking=no -p 5555 omergoktas@omergoktas.com"
+run = 'tssh -F "{{xdg_config_home}}/mise/remotes.conf" windows-box'
 
 [tasks.remote]
-description = "Run scp, rsync or another ssh command with the test boxes' password, such as `mise run remote scp -P 5555 file omergoktas@omergoktas.com:audit/`"
-extends = "box"
+description = "Pick a test box from tssh's menu and open a shell there: `tsz <file>` on the box saves it here, `trz` sends files from here, and dragging files into the terminal uploads them"
+extends = "remote"
 raw = true
-raw_args = true
-run = "sshpass -e"
+run = 'tssh -F "{{xdg_config_home}}/mise/remotes.conf" --dragfile'
+
+[tasks."remote:upload"]
+description = "Upload files to a folder on a test box with trzsz, such as `mise run remote:upload linux-box audit app.tar file.txt`"
+extends = "remote"
+usage = '''
+arg "<host>" help="linux-box or windows-box"
+arg "<folder>" help="the folder on the box, relative to its home folder"
+arg "<files>..." help="the files or folders here to upload"
+'''
+run = 'tssh -F "{{xdg_config_home}}/mise/remotes.conf"{% for file in usage.files %} --upload-file "{{file}}"{% endfor %} {{usage.host}} "trz -y -d {{usage.folder}}"'
+
+[tasks."remote:download"]
+description = "Download a file from a test box into a file here, such as `mise run remote:download linux-box audit/log.txt log.txt`"
+extends = "remote"
+usage = '''
+arg "<host>" help="linux-box or windows-box"
+arg "<file>" help="the file on the box, relative to its home folder"
+arg "<target>" help="the file here to write"
+'''
+run = 'tssh -F "{{xdg_config_home}}/mise/remotes.conf" {{usage.host}} "python3 -c \"import shutil, sys; shutil.copyfileobj(open(sys.argv[1], sys.argv[2]), sys.stdout.buffer)\" {{usage.file}} rb" > "{{usage.target}}"'
 
 [tasks.sound]
 description = "Run a Python script with the sound services' keys, such as `mise run sound tools/sounds/takes.py`"
