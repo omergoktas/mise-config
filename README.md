@@ -11,8 +11,8 @@
 
 ## A New Machine
 
-1. Install mise, on Windows with the one PowerShell command of the Yastik project's `USERTASKS.md`, which also puts mise's shims folder, `%USERPROFILE%\.local\share\mise\bin`, first on the user's `Path`; then make the shell load it with `mise activate`.
-2. Copy the whole `~/.config/mise` folder from another machine of yours. It holds this repository's checkout and the age keys in `secrets/`, which are never committed: `.gitignore` leaves out that folder and keeps everything else. Copying it by hand is also the only way in, since the token that logs git and gh in to this private repository is itself one of the encrypted secrets here.
+1. Install mise, on Windows with the one PowerShell command of the Yastik project's `USERTASKS.md`, which also puts mise's shims folder, `%USERPROFILE%\.local\share\mise\bin`, first on the user's `Path`; then make the shell load it with `mise activate`. Set `MISE_DATA_DIR` to `~/.local/share/mise` and `MISE_CACHE_DIR` to `~/.cache/mise` before mise first runs, as that file's commands do on every system, so mise keeps the same folders everywhere; no mise file can set them.
+2. Copy the whole `~/.config/mise` folder from another machine of yours. It holds this repository's checkout and the age keys in `secrets/`, which are never committed: `.gitignore` leaves out that folder and keeps everything else. This repository is public, so a clone or a download of it brings everything but the keys; without them, mise cannot open the secrets, and the tasks that need one, such as `git` and `gh`, do not run.
 3. Run `mise install` in the home folder.
 
 ## Keeping It Up to Date
