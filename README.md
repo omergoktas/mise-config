@@ -4,9 +4,10 @@
 
 Ömer's global mise setup: the developer tools, tasks and encrypted secrets that mise loads in every folder of a developer machine.
 
-- `config.toml`: the tools, such as git, gh, the formatters and the linters, and the tasks that hold a secret, such as `gh`, `git`, `remote:linux`, `sound` and `translate`. Every secret in it is encrypted with age to the key its head comment lists.
+- `config.toml`: the tools, such as git, gh, the formatters and the linters, and the tasks, such as `gh`, `git`, `remote:linux`, `sound` and `translate`. It holds no secret; its head comment lists the age key that the secrets are encrypted to.
+- `conf.d/secrets.toml`: the secrets, each encrypted with age to that key, grouped in task templates, `github`, `remote`, `sound` and `claude`, which the tasks of `config.toml` extend. mise loads it with `config.toml`.
 - `mise.lock` and `locks/`: the exact download of every tool for macOS, Linux and Windows on AMD64 and ARM64.
-- `tasks/`: the `secret` and `secret-file` tasks, which store a secret, encrypted, in any project's mise files or in this file.
+- `tasks/`: the `secret` and `secret-file` tasks, which store a secret, encrypted, in a task template of any project's `conf.d/secrets.toml` or of this folder's, and a key file in a project's `signing` folder.
 
 ## A New Machine
 
