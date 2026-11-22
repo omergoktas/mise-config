@@ -85,6 +85,7 @@ GIT_CONFIG_SYSTEM = { value = "{% if tools['http:git'] is defined %}{{ tools['ht
 description = "Run GitHub's gh with your token, such as `mise run gh run list`"
 extends = "github"
 dir = "{{cwd}}"
+raw = true
 raw_args = true
 run = "gh"
 
@@ -92,6 +93,7 @@ run = "gh"
 description = "Run git with your GitHub login, such as `mise run git push`"
 extends = "github"
 dir = "{{cwd}}"
+raw = true
 raw_args = true
 run = "git"
 

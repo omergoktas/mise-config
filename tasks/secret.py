@@ -4,7 +4,7 @@
 #USAGE arg "[template]" help="The task template that holds the secret; every task that extends it gets it"
 #USAGE arg "[name]" help="The variable's name"
 #USAGE flag "--stdin" help="Read the value from standard input instead of asking for it"
-#USAGE flag "--unredacted" help="Let the tasks' output show the value, which also lets them read standard input"
+#USAGE flag "--unredacted" help="Mark the value redact = false, for tasks that are raw and so show it unmasked"
 #USAGE flag "--global" help="Store it in your global mise folder's conf.d/secrets.toml, for tasks of your global mise file"
 #USAGE flag "--file <file>" help="Used by secret-file: encrypt this key file instead"
 #USAGE flag "--output <output>" help="Used by secret-file: where the encrypted file goes"
@@ -45,9 +45,10 @@ env table, in place of an earlier line of the same name, creating the table,
 and the file, when there is none. It refuses a template that another file of
 the scope defines. The value never reaches the screen, a log or a command line.
 
-With --unredacted the line also says `redact = false`: mise then lets the
-tasks' output show the value, and connects their standard input, which it
-never does for a task whose values it redacts.
+With --unredacted the line also says `redact = false`, for a secret whose
+tasks are `raw = true`. mise connects standard input only to a raw task, and a
+raw task's output shows its values unmasked whatever `redact` says (mise
+2026.11.10), so the flag states what the tasks already do.
 
 The global `secret-file` task, the file beside this one, runs it with --file
 and --output instead: it encrypts a key file, such as a .p12 certificate or a
