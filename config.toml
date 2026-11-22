@@ -57,7 +57,7 @@ windows-x64 = { url = "https://github.com/desktop/dugite-native/releases/downloa
 # puts on PATH. BusyBox's unzip is left out: it writes outside its target.
 # Claude Code finds niubash through its bash shim (shims_dir above).
 [tools."http:niubash"]
-version = "1.5.0"
+version = "1.5.1"
 os = ["windows"]
 
 [tools."http:niubash".platforms]
