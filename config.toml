@@ -77,6 +77,14 @@ windows-x64 = { url = "https://frippery.org/files/busybox/busybox-w64-{{ version
 [env]
 RUFF_CACHE_DIR = "{{ xdg_cache_home }}/ruff"
 NIU_UPDATE_CHECK = "0"
+# Colors in every program's output, also in the pipes Ninja runs build steps
+# through, and in CMake's own diagnostics. gh then colors even the JSON it
+# writes into a pipe, and NO_COLOR does not stop it: a command whose output a
+# program reads sets CLICOLOR_FORCE=0.
+CLICOLOR_FORCE = "1"
+CMAKE_COLOR_DIAGNOSTICS = "TRUE"
+# AtQt builds its own build tools, such as imageutil, as hardened Debug builds.
+ATQT_TOOLS_DEBUG_HARDENING_ENABLED = "TRUE"
 GIT_EXEC_PATH = { value = "{% if tools['http:git'] is defined %}{{ tools['http:git'].path }}/{% if os() == 'windows' %}{% if arch() == 'arm64' %}clangarm64{% else %}mingw64{% endif %}/{% endif %}libexec/git-core{% endif %}", tools = true }
 GIT_TEMPLATE_DIR = { value = "{% if tools['http:git'] is defined %}{{ tools['http:git'].path }}/{% if os() == 'windows' %}{% if arch() == 'arm64' %}clangarm64{% else %}mingw64{% endif %}/{% endif %}share/git-core/templates{% endif %}", tools = true }
 GIT_CONFIG_SYSTEM = { value = "{% if tools['http:git'] is defined %}{{ tools['http:git'].path }}/etc/gitconfig{% endif %}", tools = true }
