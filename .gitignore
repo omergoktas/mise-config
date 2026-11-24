@@ -1,7 +1,7 @@
 # Copyright © 2026 Ömer Göktaş. All Rights Reserved.
 
-# The private age keys in secrets/ open every secret of config.toml and of the
+# The private age keys in keys/ open every secret of config.toml and of the
 # projects, so they stay on the machine.
-/secrets/
+/keys/
 
 .DS_Store
