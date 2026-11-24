@@ -4,10 +4,11 @@
 
 Ömer's global mise setup: the developer tools and tasks that mise loads in every folder of a developer machine.
 
-- `mise.toml`: the tools, such as git, gh, fnox, the formatters and the linters, and the tasks, such as `gh`, `git`, `remote:linux`, `sound` and `translate`. It holds no secret: a task that needs one runs its program through `fnox exec --only <NAME>`, or, as `translate` does, asks fnox for it in its own env when it runs, and the file's `[env]` points fnox at the `fnox` folder.
+- `mise.toml`: the tools, such as git, gh, fnox, the formatters and the linters, and the tasks, such as `gh`, `git`, `remote`, `sound` and `translate`. It holds no secret: a task that needs one runs its program through `fnox exec --only <NAME>`, or, as `translate` does, asks fnox for it in its own env when it runs, and the file's `[env]` points fnox at the `fnox` folder. The remote tasks, `remote`, `remote:linux`, `remote:windows`, `remote:kokpit`, `remote:upload` and `remote:download`, run tssh on `remotes.conf` and work with every host there.
 - `fnox/config.toml`: fnox's global file, the tasks' secrets encrypted with age. The age keys that open them lie beside it in `fnox/keys/`, which `.gitignore` leaves out.
 - `mise.lock` and `locks/`: the exact download of every tool for macOS, Linux and Windows on AMD64 and ARM64.
 - `tasks/`: the `basics` task, which installs on Debian and Ubuntu the basic commands every machine shares.
+- `remotes.conf`: the remote machines for tssh, each with a `PasswordCommand`, `fnox get <NAME>`, that tssh runs to read the host's password; a new host needs its block here and its password stored with `fnox set --global <NAME> --provider age`.
 
 ## A New Machine
 

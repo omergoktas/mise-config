@@ -120,45 +120,55 @@ raw = true
 raw_args = true
 run = "fnox exec --only GH_TOKEN -- git"
 
-[tasks."remote:linux"]
-description = "Open a shell on the Linux test box, or run the command given, such as `mise run remote:linux uname -a`"
+# The remote tasks start tssh on remotes.conf, whose PasswordCommand lines ask
+# fnox for each host's password, so every task works with every host there.
+[tasks.remote]
+description = "Open tssh's menu of the hosts in remotes.conf, a shell on the host named, such as `mise run remote kokpit`, or run a quoted command there, such as `mise run remote kokpit 'uname -a'`"
 dir = "{{cwd}}"
 raw = true
 raw_args = true
-run = 'fnox exec --only SSHPASS -- tssh -F "{{xdg_config_home}}/mise/remotes.conf" linux-box'
+run = 'tssh -F "{{xdg_config_home}}/mise/remotes.conf" --dragfile'
+
+[tasks."remote:linux"]
+description = "Open a shell on the Linux test box, or run a quoted command there, such as `mise run remote:linux 'uname -a'`"
+dir = "{{cwd}}"
+raw = true
+raw_args = true
+run = 'tssh -F "{{xdg_config_home}}/mise/remotes.conf" --dragfile linux-box'
 
 [tasks."remote:windows"]
-description = "Open a shell on the Windows test box, or run the command given, such as `mise run remote:windows ver`"
+description = "Open a shell on the Windows test box, or run a quoted command there, such as `mise run remote:windows 'uname -a'`"
 dir = "{{cwd}}"
 raw = true
 raw_args = true
-run = 'fnox exec --only SSHPASS -- tssh -F "{{xdg_config_home}}/mise/remotes.conf" windows-box'
+run = 'tssh -F "{{xdg_config_home}}/mise/remotes.conf" --dragfile windows-box'
 
-[tasks.remote]
-description = "Pick a test box from tssh's menu and open a shell there: `tsz <file>` on the box saves it here, `trz` sends files from here, and dragging files into the terminal uploads them"
+[tasks."remote:kokpit"]
+description = "Open a shell on the kokpit server, or run a quoted command there, such as `mise run remote:kokpit 'uname -a'`"
 dir = "{{cwd}}"
 raw = true
-run = 'fnox exec --only SSHPASS -- tssh -F "{{xdg_config_home}}/mise/remotes.conf" --dragfile'
+raw_args = true
+run = 'tssh -F "{{xdg_config_home}}/mise/remotes.conf" --dragfile kokpit'
 
 [tasks."remote:upload"]
-description = "Upload files to a folder on a test box with trzsz, such as `mise run remote:upload linux-box audit app.tar file.txt`"
+description = "Upload files to a folder on a host of remotes.conf with trzsz, whose trz the host needs, such as `mise run remote:upload linux-box audit app.tar file.txt`"
 dir = "{{cwd}}"
 usage = '''
-arg "<host>" help="linux-box or windows-box"
-arg "<folder>" help="the folder on the box, relative to its home folder"
+arg "<host>" help="a host of remotes.conf, such as linux-box, windows-box or kokpit"
+arg "<folder>" help="the folder on the host, relative to its home folder, made if missing"
 arg "<files>..." help="the files or folders here to upload"
 '''
-run = 'fnox exec --only SSHPASS -- tssh -F "{{xdg_config_home}}/mise/remotes.conf"{% for file in usage.files %} --upload-file "{{file}}"{% endfor %} {{usage.host}} "trz -y -d {{usage.folder}}"'
+run = 'tssh -F "{{xdg_config_home}}/mise/remotes.conf"{% for file in usage.files %} --upload-file "{{file}}"{% endfor %} {{usage.host}} "mkdir -p {{usage.folder}} && trz -y -d {{usage.folder}}"'
 
 [tasks."remote:download"]
-description = "Download a file from a test box into a file here, such as `mise run remote:download linux-box audit/log.txt log.txt`"
+description = "Download a file from a host of remotes.conf, whose python3 copies it, into a file here, such as `mise run remote:download linux-box audit/log.txt log.txt`"
 dir = "{{cwd}}"
 usage = '''
-arg "<host>" help="linux-box or windows-box"
-arg "<file>" help="the file on the box, relative to its home folder"
+arg "<host>" help="a host of remotes.conf, such as linux-box, windows-box or kokpit"
+arg "<file>" help="the file on the host, relative to its home folder"
 arg "<target>" help="the file here to write"
 '''
-run = 'fnox exec --only SSHPASS -- tssh -F "{{xdg_config_home}}/mise/remotes.conf" {{usage.host}} "python3 -c \"import shutil, sys; shutil.copyfileobj(open(sys.argv[1], sys.argv[2]), sys.stdout.buffer)\" {{usage.file}} rb" > "{{usage.target}}"'
+run = 'tssh -F "{{xdg_config_home}}/mise/remotes.conf" {{usage.host}} "python3 -c \"import shutil, sys; shutil.copyfileobj(open(sys.argv[1], sys.argv[2]), sys.stdout.buffer)\" {{usage.file}} rb" > "{{usage.target}}"'
 
 [tasks.sound]
 description = "Run a Python script with the sound services' keys, such as `mise run sound tools/sounds/takes.py`"
