@@ -1,7 +1,7 @@
 # Copyright © 2026 Ömer Göktaş. All Rights Reserved.
 
-# The private age keys in keys/ open every secret of config.toml and of the
-# projects, so they stay on the machine.
-/keys/
+# The private age keys in fnox/keys/ open every secret of fnox/config.toml and
+# of the projects, so they stay on the machine.
+/fnox/keys/
 
 .DS_Store

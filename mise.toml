@@ -1,20 +1,16 @@
 # Copyright © 2026 Ömer Göktaş. All Rights Reserved.
 
 # Ömer's own mise file, loaded in every folder: every development tool and
-# task he uses in any project. Their secrets lie encrypted in
-# conf.d/secrets.toml, as task templates that the tasks here extend. A
-# project's own mise files hold only what its build needs. The og-mise skill of
-# the Yastik project explains every line.
-#
-# The public age keys that `mise run secret --global` encrypts to:
-# Ömer's Mac: age1w0x458cc8t9a78klgn4ht5dut8g5mhz7g464qx4gplr5n6zz94fs6c9c0k
+# task he uses in any project. Their secrets lie encrypted in fnox's own
+# global file, fnox/config.toml beside this file, and each task that needs one
+# runs its program through `fnox exec --only <NAME>`. A project's own mise files
+# hold only what its build needs. The og-mise skill of the Yastik project
+# explains every line.
 
 min_version = "2026.11.10"
 
 [settings]
 experimental = true
-age.strict = false
-age.key_file = "~/.config/mise/keys/age.txt"
 lockfile_platforms = ["linux-x64", "linux-arm64", "macos-x64", "macos-arm64", "windows-x64", "windows-arm64"]
 paranoid = ["config"]
 trusted_config_paths = ["~/Projeler/Yastik"]
@@ -40,6 +36,7 @@ tombi = "1.11.2"
 "pipx:copier" = "9.19.1"
 tssh = "0.1.27"
 trzsz-go = "1.2.0"
+fnox = "1.50.0"
 
 [tools."http:git"]
 version = "2.56.1"
@@ -77,6 +74,12 @@ windows-x64 = { url = "https://frippery.org/files/busybox/busybox-w64-{{ version
 [env]
 RUFF_CACHE_DIR = "{{ xdg_cache_home }}/ruff"
 NIU_UPDATE_CHECK = "0"
+# fnox's global file, with the secrets of these tasks, lives in this folder's
+# fnox/ subfolder, since fnox calls it config.toml, a name mise reads here as
+# its own; beside it the developer's age key, which opens fnox's secrets, the
+# project's and these tasks' alike.
+FNOX_CONFIG_DIR = "{{ xdg_config_home }}/mise/fnox"
+FNOX_AGE_KEY_FILE = "{{ xdg_config_home }}/mise/fnox/keys/age-pc.txt"
 # Colors in every program's output, also in the pipes Ninja runs build steps
 # through, and in CMake's own diagnostics. gh then colors even the JSON it
 # writes into a pipe, and NO_COLOR does not stop it: a command whose output a
@@ -89,13 +92,25 @@ GIT_EXEC_PATH = { value = "{% if tools['http:git'] is defined %}{{ tools['http:g
 GIT_TEMPLATE_DIR = { value = "{% if tools['http:git'] is defined %}{{ tools['http:git'].path }}/{% if os() == 'windows' %}{% if arch() == 'arm64' %}clangarm64{% else %}mingw64{% endif %}/{% endif %}share/git-core/templates{% endif %}", tools = true }
 GIT_CONFIG_SYSTEM = { value = "{% if tools['http:git'] is defined %}{{ tools['http:git'].path }}/etc/gitconfig{% endif %}", tools = true }
 
+# The gh and git tasks extend this template. git, which gh also runs, takes
+# GitHub's login from GH_TOKEN through these two settings: no helper of the
+# system's or the user's files, so no keychain keeps the token, and a helper for
+# github.com that answers with GH_TOKEN, which mise hands on as written for $$,
+# since fnox sets it only when the task runs.
+[task_templates.github.env]
+GIT_CONFIG_COUNT = "2"
+GIT_CONFIG_KEY_0 = "credential.helper"
+GIT_CONFIG_VALUE_0 = ""
+GIT_CONFIG_KEY_1 = "credential.https://github.com.helper"
+GIT_CONFIG_VALUE_1 = '!f() { test "$1" = get && echo username=x-access-token && echo "password=$$GH_TOKEN"; }; f'
+
 [tasks.gh]
 description = "Run GitHub's gh with your token, such as `mise run gh run list`"
 extends = "github"
 dir = "{{cwd}}"
 raw = true
 raw_args = true
-run = "gh"
+run = "fnox exec --only GH_TOKEN -- gh"
 
 [tasks.git]
 description = "Run git with your GitHub login, such as `mise run git push`"
@@ -103,69 +118,63 @@ extends = "github"
 dir = "{{cwd}}"
 raw = true
 raw_args = true
-run = "git"
+run = "fnox exec --only GH_TOKEN -- git"
 
 [tasks."remote:linux"]
 description = "Open a shell on the Linux test box, or run the command given, such as `mise run remote:linux uname -a`"
-extends = "remote"
 dir = "{{cwd}}"
 raw = true
 raw_args = true
-run = 'tssh -F "{{xdg_config_home}}/mise/remotes.conf" linux-box'
+run = 'fnox exec --only SSHPASS -- tssh -F "{{xdg_config_home}}/mise/remotes.conf" linux-box'
 
 [tasks."remote:windows"]
 description = "Open a shell on the Windows test box, or run the command given, such as `mise run remote:windows ver`"
-extends = "remote"
 dir = "{{cwd}}"
 raw = true
 raw_args = true
-run = 'tssh -F "{{xdg_config_home}}/mise/remotes.conf" windows-box'
+run = 'fnox exec --only SSHPASS -- tssh -F "{{xdg_config_home}}/mise/remotes.conf" windows-box'
 
 [tasks.remote]
 description = "Pick a test box from tssh's menu and open a shell there: `tsz <file>` on the box saves it here, `trz` sends files from here, and dragging files into the terminal uploads them"
-extends = "remote"
 dir = "{{cwd}}"
 raw = true
-run = 'tssh -F "{{xdg_config_home}}/mise/remotes.conf" --dragfile'
+run = 'fnox exec --only SSHPASS -- tssh -F "{{xdg_config_home}}/mise/remotes.conf" --dragfile'
 
 [tasks."remote:upload"]
 description = "Upload files to a folder on a test box with trzsz, such as `mise run remote:upload linux-box audit app.tar file.txt`"
-extends = "remote"
 dir = "{{cwd}}"
 usage = '''
 arg "<host>" help="linux-box or windows-box"
 arg "<folder>" help="the folder on the box, relative to its home folder"
 arg "<files>..." help="the files or folders here to upload"
 '''
-run = 'tssh -F "{{xdg_config_home}}/mise/remotes.conf"{% for file in usage.files %} --upload-file "{{file}}"{% endfor %} {{usage.host}} "trz -y -d {{usage.folder}}"'
+run = 'fnox exec --only SSHPASS -- tssh -F "{{xdg_config_home}}/mise/remotes.conf"{% for file in usage.files %} --upload-file "{{file}}"{% endfor %} {{usage.host}} "trz -y -d {{usage.folder}}"'
 
 [tasks."remote:download"]
 description = "Download a file from a test box into a file here, such as `mise run remote:download linux-box audit/log.txt log.txt`"
-extends = "remote"
 dir = "{{cwd}}"
 usage = '''
 arg "<host>" help="linux-box or windows-box"
 arg "<file>" help="the file on the box, relative to its home folder"
 arg "<target>" help="the file here to write"
 '''
-run = 'tssh -F "{{xdg_config_home}}/mise/remotes.conf" {{usage.host}} "python3 -c \"import shutil, sys; shutil.copyfileobj(open(sys.argv[1], sys.argv[2]), sys.stdout.buffer)\" {{usage.file}} rb" > "{{usage.target}}"'
+run = 'fnox exec --only SSHPASS -- tssh -F "{{xdg_config_home}}/mise/remotes.conf" {{usage.host}} "python3 -c \"import shutil, sys; shutil.copyfileobj(open(sys.argv[1], sys.argv[2]), sys.stdout.buffer)\" {{usage.file}} rb" > "{{usage.target}}"'
 
 [tasks.sound]
 description = "Run a Python script with the sound services' keys, such as `mise run sound tools/sounds/takes.py`"
-extends = "sound"
 dir = "{{cwd}}"
-run = "python3"
+run = "fnox exec --only ELEVENLABS_API_KEY --only GEMINI_API_KEY -- python3"
 
 [tasks.translate]
 description = "Translate an AtQt project's new and changed texts into every language, such as `mise run translate macos-arm64-debug`"
-extends = "claude"
 usage = 'arg "<preset>" help="A configure preset of the project"'
 dir = "{{cwd}}"
 run = 'cmake --preset "{{usage.preset}}" -DATQT_TRANSLATION_ENABLED=TRUE && cmake --build "build/{{usage.preset}}" --target atqt_translate'
 
+# AtQt's translator reads the Claude API key as ATQT_TRANSLATION_API_KEY. mise
+# asks fnox for it only when this task runs, and prints it as [redacted]. Never
+# give exec() a cache_key: mise would keep the key in its cache folder.
 [tasks.translate.env]
 ATQT_TRANSLATION_API_URL = "https://api.anthropic.com/v1/messages"
 ATQT_TRANSLATION_MODEL = "claude-opus-5-5"
-# The name under which AtQt's translator reads the Claude API key, which the
-# claude template of conf.d/secrets.toml holds.
-ATQT_TRANSLATION_API_KEY = "{{ env.CLAUDE_API_KEY | default(value='') }}"
+ATQT_TRANSLATION_API_KEY = { value = "{{ exec(command='fnox get CLAUDE_API_KEY') }}", redact = true }
